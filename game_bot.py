@@ -99,18 +99,17 @@ possible_deltas = [np.array(delta) for delta in possible_deltas]
 # Inefficient and bad, but good enough to make the code run fast enough.
 # Cannot check for exact matches of a string, but could modify the class to do that by adding a key of 'end' to designate the presence of a word
 class LimitedTrie:
-    def __init__(self, english_dict: set[str]) -> None:
+    def __init__(self, words: set[str]) -> None:
         self.root = {}
-        for word in english_dict:
+        for word in words:
             self.add(word)
 
     def add(self, word):
         current_pos = self.root
         for char in word:
-            if char in current_pos:
-                current_pos = current_pos[char]
-            else:
+            if char not in current_pos:
                 current_pos[char] = {}
+            current_pos = current_pos[char]
 
     def contains_substr(self, word):
         current_pos = self.root
@@ -129,12 +128,6 @@ def is_valid_pos(pos):
             return True
     return False
 
-def no_word_starts_with(prefix):
-    global preferred_english_words
-    for word in preferred_english_words:
-        if word.startswith(prefix):
-            return False
-    return True
 
 def solve_wordhunt_helper(board, current_pos, prefix, currently_unused):
     """ Returns set of all possible words starting from current position with given prefix """
@@ -204,7 +197,7 @@ async def on_message(message):
     if len(cmd) == 2 and cmd[0] == 'wordhunt':
         letters = cmd[1]
         if len(letters) != 16:
-            await message.channel.send('Invalid wordhunt configuration, needs 16 letters with no spaces between the letters')
+            await message.channel.send('Invalid wordhunt configuration, needs 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
         print(letters)
         words, board = solve_wordhunt(letters)
