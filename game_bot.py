@@ -62,6 +62,7 @@ async def verify_config():
 
     return True, 'verified'
 
+# *********************************** WORDHUNT CODE ***********************************************
 # generate necessary data for wordhunt
 
 english_words = set()
@@ -99,7 +100,7 @@ possible_deltas = [np.array(delta) for delta in possible_deltas]
 # Inefficient and bad, but good enough to make the code run fast enough.
 # Cannot check for exact matches of a string, but could modify the class to do that by adding a key of 'end' to designate the presence of a word
 class LimitedTrie:
-    def __init__(self, words: set[str]) -> None:
+    def __init__(self, words) -> None:
         self.root = {}
         for word in words:
             self.add(word)
@@ -128,7 +129,6 @@ def is_valid_pos(pos):
             return True
     return False
 
-
 def solve_wordhunt_helper(board, current_pos, prefix, currently_unused):
     """ Returns set of all possible words starting from current position with given prefix """
     global possible_deltas
@@ -155,9 +155,8 @@ def solve_wordhunt_helper(board, current_pos, prefix, currently_unused):
   
     return rval
 
-
-
-def solve_wordhunt(letters: str):
+# returns set of words for a board given by letters (a string of 16 chars)
+def solve_wordhunt(letters):
     letters = letters.lower()
     board = np.array([char for char in letters])
     board = np.reshape(board, (4, 4))
@@ -177,6 +176,7 @@ def format_board(board):
             rval += char + ' '
         rval += '\n'
     return rval
+# *********************************** WORDHUNT CODE END ***********************************************
 
 @client.event
 async def on_message(message):
@@ -199,14 +199,14 @@ async def on_message(message):
         if len(letters) != 16:
             await message.channel.send('Invalid wordhunt configuration, needs 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
-        print(letters)
+        print(f'User requested wordhunt search for {letters}')
         words, board = solve_wordhunt(letters)
         words = list(words)
         words = sorted(words, key=lambda word: len(word), reverse=True)
         words = words[:min(40, len(words))]
         results = '\n'.join(words)
         await message.channel.send(f'**Board:\n{format_board(board)}**\n' + 'Results:\n\n' + results)
-        print('DONE')
+        print('Done finding words')
 
 
 
