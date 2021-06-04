@@ -130,20 +130,30 @@ def is_valid_pos(pos):
             return True
     return False
 
-def solve_wordhunt_helper(board, current_pos, prefix, currently_unused):
+def conv_pos_to_word(board, positions):
+    word = ''
+    for pos in positions:
+        row, col = pos
+        word = word + board[row, col]
+    return word
+
+def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused):
     """ Returns set of all possible words starting from current position with given prefix """
     global possible_deltas
     global english_words_trie
     rval = set()
 
-    curr_row, curr_col = current_pos
-    curr_word = prefix + board[curr_row, curr_col]
+    # create local copy
+    curr_positions = [np.copy(pos) for pos in prefix_positions]
+    curr_positions.append(np.copy(current_pos))
+
+    curr_word = conv_pos_to_word(curr_positions)
 
     if not english_words_trie.contains_substr(curr_word):
         return rval
 
     if curr_word in preferred_english_words:
-        rval.add(curr_word)
+        rval.add(curr_positions)
         print(curr_word)
     
     for delta in possible_deltas:
@@ -151,7 +161,7 @@ def solve_wordhunt_helper(board, current_pos, prefix, currently_unused):
         next_row, next_col = next_pos
         if is_valid_pos(next_pos) and currently_unused[next_row, next_col]:
             currently_unused[next_row, next_col] = False
-            rval = rval.union(solve_wordhunt_helper(board, next_pos, curr_word, currently_unused))
+            rval = rval.union(solve_wordhunt_helper(board, next_pos, curr_positions, currently_unused))
             currently_unused[next_row, next_col] = True
   
     return rval
@@ -167,14 +177,19 @@ def solve_wordhunt(letters):
         for col in range(4):
             currently_unused = np.ones((4,4), dtype=bool)
             currently_unused[row, col] = False
-            all_words_found = all_words_found.union(solve_wordhunt_helper(board, np.array([row, col]), '', currently_unused))
+            all_words_found = all_words_found.union(solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused))
     return all_words_found, board
 
-def format_board(board):
+def format_board(board, bold_positions = None):
+    if bold_positions is None:
+        bold_positions = []
     rval = ''
-    for row in board:
-        for char in row:
-            rval += char + ' '
+    for row in range(4):
+        for col in range(4):
+            if np.array([row, col]) in bold_positions:
+                rval += '**' + board[row, col] + '** '
+            else:
+                rval += board[row, col] + ' '
         rval += '\n'
     return rval
 # *********************************** WORDHUNT CODE END ***********************************************
@@ -212,14 +227,29 @@ async def on_message(message):
             await message.channel.send(help_menu)
             return
         if len(letters) != 16:
-            await message.channel.send('Invalid wordhunt configuration, needs 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
+            await message.channel.send('Invalid wordhunt configuration, needs exactly 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
         print(f'User requested wordhunt search for {letters}')
-        words, board = solve_wordhunt(letters)
-        words = list(words)
-        words = sorted(words, key=lambda word: len(word), reverse=True)
-        words = words[:min(40, len(words))]
-        results = '\n'.join(words)
+        set_of_word_positions, board = solve_wordhunt(letters) 
+        list_of_word_positions = list(set_of_word_positions)
+        list_of_word_positions = sorted(list_of_word_positions, key=lambda word: len(word), reverse=True)
+
+        reduced_list_of_word_positions = []
+        already_seen_words = set()
+        for positions in list_of_word_positions:
+            curr_word = conv_pos_to_word(positions)
+            if curr_word not in already_seen_words:
+                already_seen_words.add(curr_word)
+                reduced_list_of_word_positions.append(positions)
+            if len(reduced_list_of_word_positions) >= 20:
+                break
+
+        results = ''
+        for positions in reduced_list_of_word_positions:
+            curr_word = conv_pos_to_word(positions)
+            results += '**' + curr_word + '**' + '\n\n'
+            results += format_board(board, positions) + '\n\n\n\n'
+
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
         print('Done finding words')
         return
@@ -255,7 +285,7 @@ async def on_message(message):
                     return_msg += f'{player} has colors (low to high): {" ".join(color_list).upper()}\n'
                 
                 str_your_values = [str(value) for value in your_vals]
-                return_msg += f'You have card values: {" ".join(str_your_values)}\n'
+                return_msg += f'You (p1) have card values: {" ".join(str_your_values)}\n'
 
                 return_msg += f'Initial turn: {turn}' + "```"
 
@@ -326,13 +356,16 @@ async def on_message(message):
             await message.channel.send('Starting program. Program output redirected to discord:')
 
             logic_prog = pexpect.spawn(exe_file)
-            logic_prog.expect(prompt)
-            with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore'))
-            await message.channel.send('', file = discord.File('temp.txt'))
+            try:
+                logic_prog.expect(prompt)
+                with open('temp.txt', 'w') as f:
+                    f.write(logic_prog.before.decode('utf-8', 'ignore'))
+                await message.channel.send('', file = discord.File('temp.txt'))
+            except Exception:
+                await message.channel.send('Program terminated, invalid configuration.')
             return
 
-        # now in default IO for main part of program
+        # now in default IO for main part of program, i.e. logic X
         try:
             if not logic_prog.isalive():
                 await message.channel.send('Program is not yet running. Start execution with logic start')
