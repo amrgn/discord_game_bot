@@ -181,9 +181,9 @@ def solve_wordhunt(letters):
     return all_words_found, board
 
 def format_board(board, bold_positions = None):
-    replace_non_bold_with_space = False
+    replace_non_bold_with_space = True
     if bold_positions is None:
-        replace_non_bold_with_space = True
+        replace_non_bold_with_space = False
         bold_positions = []
     # convert to tuples
     bold_positions = [(row, col) for row, col in bold_positions]
