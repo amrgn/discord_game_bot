@@ -391,7 +391,7 @@ async def on_message(message):
         try:
             logic_prog.expect(prompt)
             with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].strip('\n').rstrip())
+                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip('\n').rstrip())
             await message.channel.send('', file = discord.File('temp.txt'))
         except Exception:
             await message.channel.send('Program terminated')
