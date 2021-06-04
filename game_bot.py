@@ -220,16 +220,16 @@ async def on_message(message):
                 return_msg = '**Current config**\n' + 'Colors:\n'
 
                 for player, color_list in colors.items():
-                    return_msg += f'Player: {player} has colors (low to high): {" ".join(color_list)}\n'
+                    return_msg += f'{player} has colors (low to high): {" ".join(color_list)}\n'
                 
                 str_your_values = [str(value) for value in your_vals]
-                return_msg += f'You have card values {" ".join(str_your_values)}\n'
+                return_msg += f'You have card values: {" ".join(str_your_values)}\n'
 
                 return_msg += f'Initial turn: {turn}'
 
                 await message.channel.send(return_msg)
                 return
-                
+
             if cmd[2] == 'colors':
                 # expect logic config colors p1 r b r b b r
                 if len(cmd) != 10:
