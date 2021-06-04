@@ -4,11 +4,12 @@ from dotenv import load_dotenv
 import numpy as np
 import asyncio
 import json
-import subprocess
+import pexpect
 
 # requires a local version of the executable logic.exe
 
-exe_file = 'logic.exe'
+exe_file = './logic'
+prompt = '>>>'
 
 colors = {'p1': ['b', 'r', 'r', 'b', 'r', 'r'], 'p2': ['r', 'b', 'r', 'b', 'r', 'r'], 'p3': ['r', 'r', 'b', 'b', 'r', 'b'], 'p4': ['b', 'b', 'b', 'b', 'b', 'r']}
 your_vals = [2, 2, 6, 8, 9, 10]
@@ -210,93 +211,92 @@ async def on_message(message):
 
 
 
-    # if len(cmd) > 1 and cmd[0] == 'logic':
-    #     # parse command, I know this is a mess
-    #     if cmd[1] == 'config':
-    #         # allow user to set up initial state
-    #         if len(cmd) == 2:
-    #             # print current config, then return
-    #             return_msg = '**Current config**\n' + 'Colors:\n' + json.dumps(colors, indent=4) + '\n' + 'Your card values:\n' + json.dumps(your_vals) + '\n' + f'Initial turn: {turn}'
-    #             await message.channel.send(return_msg)
-    #             return
-    #         if cmd[2] == 'colors':
-    #             # expect logic config colors p1 r b r b b r
-    #             if len(cmd) != 10:
-    #                 await message.channel.send('Unknown command, expected command of format: logic config colors p1 r b r b b r')
-    #                 return
-    #             if cmd[3] not in {'p1', 'p2', 'p3', 'p4'}:
-    #                 await message.channel.send('Unknown player')
-    #                 return
-    #             colors[cmd[3]] = list(cmd[4:])
-    #         elif cmd[2] == 'values':
-    #             # expect logic config values 1 4 5 6 9 12
-    #             if len(cmd) != 9:
-    #                 await message.channel.send('Unknown command, expected command of format: logic config values 1 4 5 6 9 12')
-    #                 return
-    #             your_vals = [int(val) for val in cmd[3:]]
-    #         elif cmd[2] == 'turn':
-    #             # expect logic config turn 3
-    #             if len(cmd) != 4:
-    #                 await message.channel.send('Unknown command, expected command of format: logic config turn 3')
-    #                 return
-    #             turn = int(cmd[3])
-    #         else:
-    #             await message.channel.send('Unknown command, expected command of formad: logic config [colors/values/turn]')
-    #         return
-    #     if cmd[1] == 'start':
-    #         try:
-    #             if logic_prog.poll() is None:
-    #                 await message.channel.send('Program is already running!')
-    #                 return
-    #         except AttributeError:
-    #             pass
+    if len(cmd) > 1 and cmd[0] == 'logic':
+        # parse command, I know this is a mess
+        if cmd[1] == 'config':
+            # allow user to set up initial state
+            if len(cmd) == 2:
+                # print current config, then return
+                return_msg = '**Current config**\n' + 'Colors:\n' + json.dumps(colors, indent=4) + '\n' + 'Your card values:\n' + json.dumps(your_vals) + '\n' + f'Initial turn: {turn}'
+                await message.channel.send(return_msg)
+                return
+            if cmd[2] == 'colors':
+                # expect logic config colors p1 r b r b b r
+                if len(cmd) != 10:
+                    await message.channel.send('Unknown command, expected command of format: logic config colors p1 r b r b b r')
+                    return
+                if cmd[3] not in {'p1', 'p2', 'p3', 'p4'}:
+                    await message.channel.send('Unknown player')
+                    return
+                colors[cmd[3]] = list(cmd[4:])
+            elif cmd[2] == 'values':
+                # expect logic config values 1 4 5 6 9 12
+                if len(cmd) != 9:
+                    await message.channel.send('Unknown command, expected command of format: logic config values 1 4 5 6 9 12')
+                    return
+                your_vals = [int(val) for val in cmd[3:]]
+            elif cmd[2] == 'turn':
+                # expect logic config turn 3
+                if len(cmd) != 4:
+                    await message.channel.send('Unknown command, expected command of format: logic config turn 3')
+                    return
+                turn = int(cmd[3])
+            else:
+                await message.channel.send('Unknown command, expected command of formad: logic config [colors/values/turn]')
+            return
+        if cmd[1] == 'start':
+            try:
+                if logic_prog.isalive() is None:
+                    await message.channel.send('Program is already running!')
+                    return
+            except AttributeError:
+                pass
 
-    #         verified, msg = await verify_config()
-    #         if not verified:
-    #             await message.channel.send(f'Invalid config! Error: {msg}')
-    #             return
+            verified, msg = await verify_config()
+            if not verified:
+                await message.channel.send(f'Invalid config! Error: {msg}')
+                return
 
-    #         # verified, create init.txt file
-    #         with open('init.txt', 'w') as f:
-    #             f.write('#CARDCOLORS#\n')
-    #             for color_list in colors.values():
-    #                 upper_color_list = [color.upper() for color in color_list]
-    #                 f.write(' '.join(upper_color_list) + '\n')
-    #             f.write('#CARDVALUES#\n')
-    #             str_vals = [str(val) for val in your_vals]
-    #             f.write(' '.join(str_vals) + '\n')
-    #             f.write('#PLAYERTURN#\n')
-    #             f.write(str(turn))
+            # verified, create init.txt file
+            with open('init.txt', 'w') as f:
+                f.write('#CARDCOLORS#\n')
+                for color_list in colors.values():
+                    upper_color_list = [color.upper() for color in color_list]
+                    f.write(' '.join(upper_color_list) + '\n')
+                f.write('#CARDVALUES#\n')
+                str_vals = [str(val) for val in your_vals]
+                f.write(' '.join(str_vals) + '\n')
+                f.write('#PLAYERTURN#\n')
+                f.write(str(turn))
             
-    #         await message.channel.send('Starting program. Program output redirected to discord:')
+            await message.channel.send('Starting program. Program output redirected to discord:')
 
-    #         logic_prog = subprocess.Popen('logic.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    #         #await message.channel.send(logic_prog.stdout.read(1900))
-    #         print(logic_prog.stdout.read())
-            
-    #         return
+            logic_prog = pexpect.spawn(exe_file)
+            logic_prog.expect(prompt)
+            with open('temp.txt', 'w') as f:
+                f.write(logic_prog.before)
+            await message.channel.send('', file=discord.File('temp.txt'))
+            return
 
-    #         output, error = logic_prog.communicate()
-    #         await message.channel.send(output)
-
-    #         return
-
-    #     # now in default IO for main part of program
-    #     try:
-    #         if logic_prog.poll() is not None:
-    #             await message.channel.send('Program is not yet running. Start execution with logic start')
-    #             return
-    #     except AttributeError:
-    #         await message.channel.send('Program is not yet running. Start execution with logic start')
-    #         return
+        # now in default IO for main part of program
+        try:
+            if not logic_prog.isalive():
+                await message.channel.send('Program is not yet running. Start execution with logic start')
+                return
+        except AttributeError:
+            await message.channel.send('Program is not yet running. Start execution with logic start')
+            return
         
-    #     print(cmd[1])
-    #     return
-    #     output, error = logic_prog.communicate(input = str(cmd[1]), timeout=15)
-
-    #     await message.channel.send(output)
-
-
+        usr_inp = str(cmd[1])
+        logic_prog.sendline(usr_inp)
+        try:
+            logic_prog.expect(prompt)
+            with open('temp.txt', 'w') as f:
+                f.write(logic_prog.before)
+            await message.channel.send('', file=discord.File('temp.txt'))
+        except Exception:
+            await message.channel.send('Program terminated')
+        return
 
     
 
