@@ -197,6 +197,19 @@ async def on_message(message):
     
     if len(cmd) == 2 and cmd[0] == 'wordhunt':
         letters = cmd[1]
+        if letters == 'help' or letters == 'h':
+            # message style taken from parthiv's help menu https://github.com/parthiv-krishna/stonks-bot/blob/main/stonks-bot.py
+            help_menu =  "Usage for wordhunt bot, all commands case insensitive:\n```"
+            help_menu += "wordhunt help                       : display this message\n"
+            help_menu += "\n### Get List of Longest Words ###\n"
+            help_menu += "wordhunt abcdefghijklmnop           : get list of words for the board \n"
+            help_menu += "        abcd\n"
+            help_menu += "        efgh\n"
+            help_menu += "        ijkl\n"
+            help_menu += "        mnop\n"
+            help_menu += "```"
+            await message.channel.send(help_menu)
+            return
         if len(letters) != 16:
             await message.channel.send('Invalid wordhunt configuration, needs 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
@@ -206,8 +219,9 @@ async def on_message(message):
         words = sorted(words, key=lambda word: len(word), reverse=True)
         words = words[:min(40, len(words))]
         results = '\n'.join(words)
-        await message.channel.send(f'**Board:\n{format_board(board)}**\n' + 'Results:\n\n' + results)
+        await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
         print('Done finding words')
+        return
 
 
 
