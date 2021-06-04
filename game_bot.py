@@ -189,7 +189,7 @@ def format_board(board, bold_positions = None):
     for row in range(4):
         for col in range(4):
             if (row, col) in bold_positions:
-                rval += '**' + board[row, col] + '** '
+                rval += board[row, col].upper() + ' '
             else:
                 rval += board[row, col] + ' '
         rval += '\n'
