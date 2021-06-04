@@ -242,14 +242,13 @@ async def on_message(message):
             if curr_word not in already_seen_words:
                 already_seen_words.add(curr_word)
                 reduced_list_of_word_positions.append(positions)
-            if len(reduced_list_of_word_positions) >= 20:
+            if len(reduced_list_of_word_positions) >= 15:
                 break
 
         results = ''
         for positions in reduced_list_of_word_positions:
             curr_word = conv_pos_to_word(board, positions)
             results += '**' + curr_word + '**' + '\n'
-            results += '-------------------------------'
             results += "```"
             results += format_board(board, positions) + '\n\n'
             results += "```"
