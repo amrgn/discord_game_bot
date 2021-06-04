@@ -147,7 +147,7 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
     curr_positions = [np.copy(pos) for pos in prefix_positions]
     curr_positions.append(np.copy(current_pos))
 
-    curr_word = conv_pos_to_word(curr_positions)
+    curr_word = conv_pos_to_word(board, curr_positions)
 
     if not english_words_trie.contains_substr(curr_word):
         return rval
@@ -237,7 +237,7 @@ async def on_message(message):
         reduced_list_of_word_positions = []
         already_seen_words = set()
         for positions in list_of_word_positions:
-            curr_word = conv_pos_to_word(positions)
+            curr_word = conv_pos_to_word(board, positions)
             if curr_word not in already_seen_words:
                 already_seen_words.add(curr_word)
                 reduced_list_of_word_positions.append(positions)
@@ -246,7 +246,7 @@ async def on_message(message):
 
         results = ''
         for positions in reduced_list_of_word_positions:
-            curr_word = conv_pos_to_word(positions)
+            curr_word = conv_pos_to_word(board, positions)
             results += '**' + curr_word + '**' + '\n\n'
             results += format_board(board, positions) + '\n\n\n\n'
 
