@@ -254,9 +254,21 @@ async def on_message(message):
             else:
                 await message.channel.send('Unknown command, expected command of formad: logic config [colors/values/turn]')
             return
+
+        if cmd[1] == 'quit':
+            try:
+                if logic_prog.isalive():
+                    logic_prog.terminate()
+                    return
+            except AttributeError:
+                pass
+            
+            await message.channel.send('Program has not even started yet.')
+            return
+
         if cmd[1] == 'start':
             try:
-                if logic_prog.isalive() is None:
+                if logic_prog.isalive():
                     await message.channel.send('Program is already running!')
                     return
             except AttributeError:
