@@ -9,7 +9,7 @@ import pexpect
 # requires a local version of the executable logic.exe
 
 exe_file = './logic'
-prompt = '>>>'
+prompt = '>>> '
 
 colors = {'p1': ['b', 'r', 'r', 'b', 'r', 'r'], 'p2': ['r', 'b', 'r', 'b', 'r', 'r'], 'p3': ['r', 'r', 'b', 'b', 'r', 'b'], 'p4': ['b', 'b', 'b', 'b', 'b', 'r']}
 your_vals = [2, 2, 6, 8, 9, 10]
@@ -292,7 +292,7 @@ async def on_message(message):
         try:
             logic_prog.expect(prompt)
             with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore'))
+                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):])
             await message.channel.send('', file=discord.File('temp.txt'))
         except Exception:
             await message.channel.send('Program terminated')
