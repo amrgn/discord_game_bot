@@ -67,10 +67,10 @@ async def verify_config():
 # generate necessary data for wordhunt
 board_sidelength = 4
 
-english_words = set()
+english_words = []
 with open('words.txt', 'r') as f:
     for line in f:
-        english_words.add(line.rstrip().lower())
+        english_words.append(line.rstrip().lower())
 
 def good_english_word(word):
     # assumes lowercase word
@@ -81,11 +81,11 @@ def good_english_word(word):
             return True
     return False
 
-preferred_english_words = set()
+preferred_english_words = []
 
 for word in english_words:
     if good_english_word(word):
-        preferred_english_words.add(word)
+        preferred_english_words.append(word)
     
 # possible movements from current character to next character 
 possible_deltas = [[0, 1],
@@ -99,9 +99,8 @@ possible_deltas = [[0, 1],
 
 possible_deltas = [np.array(delta) for delta in possible_deltas]
 
-# Inefficient and bad, but good enough to make the code run fast enough.
-# Cannot check for exact matches of a string, but could modify the class to do that by adding a key of 'end' to designate the presence of a word
-class LimitedTrie:
+# Inefficient with memory, but good enough to make the code run fast enough.
+class UncompressedTrie:
     def __init__(self, words) -> None:
         self.root = {}
         for word in words:
@@ -113,17 +112,18 @@ class LimitedTrie:
             if char not in current_pos:
                 current_pos[char] = {}
             current_pos = current_pos[char]
+        current_pos['end'] = ''
 
     def contains_substr(self, word):
+        """ returns 0 if not a substring of anything, 1 if a substring of something, and 2 for exact match """
         current_pos = self.root
         for char in word:
             if char not in current_pos:
-                return False
-            else:
-                current_pos = current_pos[char]
-        return True
+                return 0
+            current_pos = current_pos[char]
+        return 2 if 'end' in current_pos else 1
             
-english_words_trie = LimitedTrie(preferred_english_words)
+english_words_trie = UncompressedTrie(preferred_english_words)
 
 def is_valid_pos(pos):
     if pos[0] >= 0 and pos[0] <= 3:
@@ -150,10 +150,10 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
 
     curr_word = conv_pos_to_word(board, curr_positions)
 
-    if not english_words_trie.contains_substr(curr_word):
+    string_status = english_words_trie.contains_substr(curr_word)
+    if string_status == 0: # not a substring of anything
         return rval
-
-    if curr_word in preferred_english_words:
+    if string_status == 2: # exact match
         rval.append(curr_positions)
         print(curr_word)
     
