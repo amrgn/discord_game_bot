@@ -248,8 +248,11 @@ async def on_message(message):
         results = ''
         for positions in reduced_list_of_word_positions:
             curr_word = conv_pos_to_word(board, positions)
-            results += '**' + curr_word + '**' + '\n\n'
-            results += format_board(board, positions) + '\n\n\n\n'
+            results += '**' + curr_word + '**' + '\n'
+            results += '-------------------------------'
+            results += "```"
+            results += format_board(board, positions) + '\n\n'
+            results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
         print('Done finding words')
