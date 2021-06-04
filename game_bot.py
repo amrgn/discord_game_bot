@@ -191,7 +191,10 @@ def format_board(board, bold_positions = None):
     for row in range(4):
         for col in range(4):
             if (row, col) in bold_positions:
-                rval += board[row, col].upper() + ' '
+                if (row, col) == bold_positions[0]:
+                    rval += board[row, col].upper() + ' '
+                else:
+                    rval += board[row, col] + ' '
             else:
                 if replace_non_bold_with_space:
                     rval += '  '
@@ -255,7 +258,7 @@ async def on_message(message):
             curr_word = conv_pos_to_word(board, positions)
             results += '**' + curr_word + '**' + '\n'
             results += "```"
-            results += format_board(board, positions) + '\n\n\n\n\n'
+            results += format_board(board, positions) + '\n'
             results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
