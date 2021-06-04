@@ -138,10 +138,10 @@ def conv_pos_to_word(board, positions):
     return word
 
 def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused):
-    """ Returns set of all possible words starting from current position with given prefix """
+    """ Returns list of all possible words starting from current position with given prefix """
     global possible_deltas
     global english_words_trie
-    rval = set()
+    rval = []
 
     # create local copy
     curr_positions = [np.copy(pos) for pos in prefix_positions]
@@ -153,7 +153,7 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
         return rval
 
     if curr_word in preferred_english_words:
-        rval.add(curr_positions)
+        rval.append(curr_positions)
         print(curr_word)
     
     for delta in possible_deltas:
@@ -161,7 +161,7 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
         next_row, next_col = next_pos
         if is_valid_pos(next_pos) and currently_unused[next_row, next_col]:
             currently_unused[next_row, next_col] = False
-            rval = rval.union(solve_wordhunt_helper(board, next_pos, curr_positions, currently_unused))
+            rval = rval + solve_wordhunt_helper(board, next_pos, curr_positions, currently_unused)
             currently_unused[next_row, next_col] = True
   
     return rval
@@ -171,13 +171,13 @@ def solve_wordhunt(letters):
     letters = letters.lower()
     board = np.array([char for char in letters])
     board = np.reshape(board, (4, 4))
-    all_words_found = set()
+    all_words_found = []
 
     for row in range(4):
         for col in range(4):
             currently_unused = np.ones((4,4), dtype=bool)
             currently_unused[row, col] = False
-            all_words_found = all_words_found.union(solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused))
+            all_words_found = all_words_found + solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused)
     return all_words_found, board
 
 def format_board(board, bold_positions = None):
@@ -230,8 +230,7 @@ async def on_message(message):
             await message.channel.send('Invalid wordhunt configuration, needs exactly 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
         print(f'User requested wordhunt search for {letters}')
-        set_of_word_positions, board = solve_wordhunt(letters) 
-        list_of_word_positions = list(set_of_word_positions)
+        list_of_word_positions, board = solve_wordhunt(letters) 
         list_of_word_positions = sorted(list_of_word_positions, key=lambda word: len(word), reverse=True)
 
         reduced_list_of_word_positions = []
