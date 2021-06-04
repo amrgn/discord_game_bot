@@ -274,7 +274,7 @@ async def on_message(message):
             logic_prog = pexpect.spawn(exe_file)
             logic_prog.expect(prompt)
             with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before)
+                f.write(logic_prog.before.decode('utf-8', 'ignore'))
             await message.channel.send('', file=discord.File('temp.txt'))
             return
 
@@ -292,7 +292,7 @@ async def on_message(message):
         try:
             logic_prog.expect(prompt)
             with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before)
+                f.write(logic_prog.before.decode('utf-8', 'ignore'))
             await message.channel.send('', file=discord.File('temp.txt'))
         except Exception:
             await message.channel.send('Program terminated')
