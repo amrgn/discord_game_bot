@@ -255,7 +255,7 @@ async def on_message(message):
             curr_word = conv_pos_to_word(board, positions)
             results += '**' + curr_word + '**' + '\n'
             results += "```"
-            results += format_board(board, positions) + '\n\n'
+            results += format_board(board, positions) + ' \n'
             results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
