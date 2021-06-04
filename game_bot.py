@@ -213,6 +213,23 @@ async def on_message(message):
 
     if len(cmd) > 1 and cmd[0] == 'logic':
         # parse command, I know this is a mess
+        if cmd[1] == 'help' or cmd[1] == 'h':
+            # message style taken from parthiv's help menu https://github.com/parthiv-krishna/stonks-bot/blob/main/stonks-bot.py
+            help_menu =  "Usage for logic-bot, all commands case insensitive:\n```"
+            help_menu += "logic help                          : display this message\n"
+            help_menu += "\n### Initial Game Setup ###\n"
+            help_menu += "logic config                        : get current (possibly incomplete) configuration\n"
+            help_menu += "logic config colors Px R B R B B R  : configure colors for player x (color ordering left to right corresponds to low to high card values)\n"
+            help_menu += "logic config values x x x x x x     : configure your card values from low to high\n"
+            help_menu += "logic config turn                   : configure initial player turn\n"
+            help_menu += "\n### Start/stop program ###\n"
+            help_menu += "logic start\n                       : start the program"
+            help_menu += "logic stop\n                        : stop the program"
+            help_menu += "\n### Default I/O to program ###\n"
+            help_menu += "logic X                             : sends X (string or number, no spaces) to the input of the program \n"
+            help_menu += "```"
+            await message.channel.send(help_menu)
+            return
         if cmd[1] == 'config':
             # allow user to set up initial state
             if len(cmd) == 2:
@@ -295,9 +312,7 @@ async def on_message(message):
 
             logic_prog = pexpect.spawn(exe_file)
             logic_prog.expect(prompt)
-            with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore'))
-            await message.channel.send('', file=discord.File('temp.txt'))
+            await message.channel.send("```" + logic_prog.before.decode('utf-8', 'ignore') + "```")
             return
 
         # now in default IO for main part of program
@@ -313,9 +328,7 @@ async def on_message(message):
         logic_prog.sendline(usr_inp)
         try:
             logic_prog.expect(prompt)
-            with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip().rstrip())
-            await message.channel.send('', file=discord.File('temp.txt'))
+            await message.channel.send("```" + logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip().rstrip() + "```")
         except Exception:
             await message.channel.send('Program terminated')
         return
