@@ -220,7 +220,7 @@ async def on_message(message):
                 return_msg = '**Current config**\n' + 'Colors:\n'
 
                 for player, color_list in colors.items():
-                    return_msg += f'{player} has colors (low to high): {" ".join(color_list)}\n'
+                    return_msg += f'{player} has colors (low to high): {" ".join(color_list).upper()}\n'
                 
                 str_your_values = [str(value) for value in your_vals]
                 return_msg += f'You have card values: {" ".join(str_your_values)}\n'
