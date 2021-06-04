@@ -183,10 +183,12 @@ def solve_wordhunt(letters):
 def format_board(board, bold_positions = None):
     if bold_positions is None:
         bold_positions = []
+    # convert to tuples
+    bold_positions = [(row, col) for row, col in bold_positions]
     rval = ''
     for row in range(4):
         for col in range(4):
-            if np.array([row, col]) in bold_positions:
+            if (row, col) in bold_positions:
                 rval += '**' + board[row, col] + '** '
             else:
                 rval += board[row, col] + ' '
