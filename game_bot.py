@@ -203,10 +203,11 @@ async def on_message(message):
             help_menu += "wordhunt help                       : display this message\n"
             help_menu += "\n### Get List of Longest Words ###\n"
             help_menu += "wordhunt abcdefghijklmnop           : get list of words for the board \n"
-            help_menu += "        abcd\n"
-            help_menu += "        efgh\n"
-            help_menu += "        ijkl\n"
-            help_menu += "        mnop\n"
+            help_menu += "\n"
+            help_menu += "                                                   a b c d\n"
+            help_menu += "                                                   e f g h\n"
+            help_menu += "                                                   i j k l\n"
+            help_menu += "                                                   m n o p\n"
             help_menu += "```"
             await message.channel.send(help_menu)
             return
