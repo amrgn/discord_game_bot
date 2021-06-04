@@ -296,7 +296,7 @@ async def on_message(message):
                     return_msg += f'{player} has colors (low to high): {" ".join(color_list).upper()}\n'
                 
                 str_your_values = [str(value) for value in your_vals]
-                return_msg += f'You (p1) have card values: {" ".join(str_your_values)}\n'
+                return_msg += f'You (p1) have card values  : {" ".join(str_your_values)}\n'
 
                 return_msg += f'Initial turn: {turn}' + "```"
 
