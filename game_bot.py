@@ -332,7 +332,7 @@ async def on_message(message):
             try:
                 if logic_prog.isalive():
                     logic_prog.terminate()
-                    message.channel.send('Program terminated')
+                    await message.channel.send('Program terminated')
                     return
             except AttributeError:
                 pass
