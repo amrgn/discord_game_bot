@@ -65,6 +65,7 @@ async def verify_config():
 
 # *********************************** WORDHUNT CODE ***********************************************
 # generate necessary data for wordhunt
+board_sidelength = 4
 
 english_words = set()
 with open('words.txt', 'r') as f:
@@ -170,12 +171,12 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
 def solve_wordhunt(letters):
     letters = letters.lower()
     board = np.array([char for char in letters])
-    board = np.reshape(board, (4, 4))
+    board = np.reshape(board, (board_sidelength, board_sidelength))
     all_words_found = []
 
-    for row in range(4):
-        for col in range(4):
-            currently_unused = np.ones((4,4), dtype=bool)
+    for row in range(board_sidelength):
+        for col in range(board_sidelength):
+            currently_unused = np.ones((board_sidelength,board_sidelength), dtype=bool)
             currently_unused[row, col] = False
             all_words_found = all_words_found + solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused)
     return all_words_found, board
@@ -188,8 +189,8 @@ def format_board(board, bold_positions = None):
     # convert to tuples
     bold_positions = [(row, col) for row, col in bold_positions]
     rval = ''
-    for row in range(4):
-        for col in range(4):
+    for row in range(board_sidelength):
+        for col in range(board_sidelength):
             if (row, col) in bold_positions:
                 if (row, col) == bold_positions[0]:
                     rval += board[row, col].upper() + ' '
@@ -211,6 +212,7 @@ async def on_message(message):
     global your_vals
     global turn
     global logic_prog
+    global board_sidelength
 
     if message.author.bot:
         return
@@ -236,12 +238,14 @@ async def on_message(message):
             help_menu += "```"
             await message.channel.send(help_menu)
             return
-        if len(letters) != 16:
-            await message.channel.send('Invalid wordhunt configuration, needs exactly 16 letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
+        if len(letters) != board_sidelength * board_sidelength:
+            await message.channel.send(f'Invalid wordhunt configuration, needs exactly {board_sidelength * board_sidelength} letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
         print(f'User requested wordhunt search for {letters}')
         list_of_word_positions, board = solve_wordhunt(letters) 
         list_of_word_positions = sorted(list_of_word_positions, key=lambda word: len(word), reverse=True)
+
+        MAX_NUM_RESULTS = 15
 
         reduced_list_of_word_positions = []
         already_seen_words = set()
@@ -250,7 +254,7 @@ async def on_message(message):
             if curr_word not in already_seen_words:
                 already_seen_words.add(curr_word)
                 reduced_list_of_word_positions.append(positions)
-            if len(reduced_list_of_word_positions) >= 15:
+            if len(reduced_list_of_word_positions) >= MAX_NUM_RESULTS:
                 break
 
         results = ''
