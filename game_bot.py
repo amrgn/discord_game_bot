@@ -223,8 +223,8 @@ async def on_message(message):
             help_menu += "logic config values x x x x x x     : configure your card values from low to high\n"
             help_menu += "logic config turn                   : configure initial player turn\n"
             help_menu += "\n### Start/stop program ###\n"
-            help_menu += "logic start\n                       : start the program"
-            help_menu += "logic stop\n                        : stop the program"
+            help_menu += "logic start                         : start the program\n"
+            help_menu += "logic stop                          : stop the program\n"
             help_menu += "\n### Default I/O to program ###\n"
             help_menu += "logic X                             : sends X (string or number, no spaces) to the input of the program \n"
             help_menu += "```"
@@ -234,7 +234,7 @@ async def on_message(message):
             # allow user to set up initial state
             if len(cmd) == 2:
                 # print current config, then return
-                return_msg = '**Current config**\n' + 'Colors:\n'
+                return_msg = '**Current config**\n' + "```" + 'Colors:\n'
 
                 for player, color_list in colors.items():
                     return_msg += f'{player} has colors (low to high): {" ".join(color_list).upper()}\n'
@@ -242,7 +242,7 @@ async def on_message(message):
                 str_your_values = [str(value) for value in your_vals]
                 return_msg += f'You have card values: {" ".join(str_your_values)}\n'
 
-                return_msg += f'Initial turn: {turn}'
+                return_msg += f'Initial turn: {turn}' + "```"
 
                 await message.channel.send(return_msg)
                 return
