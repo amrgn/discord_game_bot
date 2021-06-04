@@ -312,7 +312,9 @@ async def on_message(message):
 
             logic_prog = pexpect.spawn(exe_file)
             logic_prog.expect(prompt)
-            await message.channel.send("```" + logic_prog.before.decode('utf-8', 'ignore') + "```")
+            with open('temp.txt', 'w') as f:
+                f.write(logic_prog.before.decode('utf-8', 'ignore'))
+            await message.channel.send('', file = discord.File('temp.txt'))
             return
 
         # now in default IO for main part of program
@@ -328,7 +330,9 @@ async def on_message(message):
         logic_prog.sendline(usr_inp)
         try:
             logic_prog.expect(prompt)
-            await message.channel.send("```" + logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip().rstrip() + "```")
+            with open('temp.txt', 'w') as f:
+                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip().rstrip())
+            await message.channel.send('', file = discord.File('temp.txt'))
         except Exception:
             await message.channel.send('Program terminated')
         return
