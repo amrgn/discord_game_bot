@@ -217,9 +217,19 @@ async def on_message(message):
             # allow user to set up initial state
             if len(cmd) == 2:
                 # print current config, then return
-                return_msg = '**Current config**\n' + 'Colors:\n' + json.dumps(colors, indent=4) + '\n' + 'Your card values:\n' + json.dumps(your_vals) + '\n' + f'Initial turn: {turn}'
+                return_msg = '**Current config**\n' + 'Colors:\n'
+
+                for player, color_list in colors.items():
+                    return_msg += f'Player: {player} has colors (low to high): {" ".join(color_list)}\n'
+                
+                str_your_values = [str(value) for value in your_vals]
+                return_msg += f'You have card values {" ".join(str_your_values)}\n'
+
+                return_msg += f'Initial turn: {turn}'
+
                 await message.channel.send(return_msg)
                 return
+                
             if cmd[2] == 'colors':
                 # expect logic config colors p1 r b r b b r
                 if len(cmd) != 10:
@@ -292,7 +302,7 @@ async def on_message(message):
         try:
             logic_prog.expect(prompt)
             with open('temp.txt', 'w') as f:
-                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):])
+                f.write(logic_prog.before.decode('utf-8', 'ignore')[len(usr_inp):].lstrip().rstrip())
             await message.channel.send('', file=discord.File('temp.txt'))
         except Exception:
             await message.channel.send('Program terminated')
