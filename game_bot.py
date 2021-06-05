@@ -120,7 +120,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             except IndexError:
                 continue
             curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
-            axs[row, col].set_title(curr_word.upper())
+            axs[row, col].set_title(curr_word.upper(), fontweight='bold', fontsize='x-large')
 
             start_pos = curr_path[0]
             end_pos = curr_path[-1]
@@ -250,26 +250,34 @@ def solve_wordhunt(letters):
             all_words_found = all_words_found + solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused)
     return all_words_found, board
 
-def format_board(board, bold_path = None):
-    replace_non_bold_with_space = True
-    if bold_path is None:
-        replace_non_bold_with_space = False
-        bold_path = []
-    # convert to tuples
-    bold_path = [(row, col) for row, col in bold_path]
+# def format_board(board, bold_path = None):
+#     replace_non_bold_with_space = True
+#     if bold_path is None:
+#         replace_non_bold_with_space = False
+#         bold_path = []
+#     # convert to tuples
+#     bold_path = [(row, col) for row, col in bold_path]
+#     rval = ''
+#     for row in range(board_sidelength):
+#         for col in range(board_sidelength):
+#             if (row, col) in bold_path:
+#                 if (row, col) == bold_path[0]:
+#                     rval += board[row, col].upper() + ' '
+#                 else:
+#                     rval += board[row, col] + ' '
+#             else:
+#                 if replace_non_bold_with_space:
+#                     rval += '  '
+#                 else:
+#                     rval += board[row, col] + ' '
+#         rval += '\n'
+#     return rval
+
+def format_board(board):
     rval = ''
     for row in range(board_sidelength):
         for col in range(board_sidelength):
-            if (row, col) in bold_path:
-                if (row, col) == bold_path[0]:
-                    rval += board[row, col].upper() + ' '
-                else:
-                    rval += board[row, col] + ' '
-            else:
-                if replace_non_bold_with_space:
-                    rval += '  '
-                else:
-                    rval += board[row, col] + ' '
+            rval += board[row, col].upper() + ' '
         rval += '\n'
     return rval
 
@@ -327,13 +335,13 @@ async def on_message(message):
             if len(reduced_list_of_word_paths) >= MAX_NUM_RESULTS:
                 break
 
-        results = ''
-        for path in reduced_list_of_word_paths:
-            curr_word = conv_path_to_word(board, path)
-            results += '**' + curr_word.capitalize() + '**' + '\n'
-            results += "```"
-            results += format_board(board, path) + '\n'
-            results += "```"
+        # results = ''
+        # for path in reduced_list_of_word_paths:
+        #     curr_word = conv_path_to_word(board, path)
+        #     results += '**' + curr_word.capitalize() + '**' + '\n'
+        #     results += "```"
+        #     results += format_board(board, path) + '\n'
+        #     results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n')
         await send_results(message.channel, board, reduced_list_of_word_paths)
