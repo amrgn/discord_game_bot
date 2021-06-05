@@ -129,7 +129,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             path_idx = ncols * row + col
             try:
                 curr_path = paths[path_idx]
-            except KeyError:
+            except IndexError:
                 continue
             curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
             axs[row, col].set_title(curr_word)
