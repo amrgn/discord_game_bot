@@ -109,10 +109,11 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
 
     for row in range(nrows):
         for col in range(ncols):
-            axs[row, col].set_xlim(-0.5, 0.5 + board_sidelength - 1)
-            axs[row, col].set_ylim(-0.5, 0.5 + board_sidelength - 1)
+            axs[row, col].set_xlim(-0.6, 0.6 + board_sidelength - 1)
+            axs[row, col].set_ylim(-0.6, 0.6 + board_sidelength - 1)
             axs[row, col].tick_params(left = False, right = False, labelleft = False,
                 labelbottom = False, bottom = False)
+            axs[row, col].axis("off")
 
             path_idx = ncols * row + col
             try:
@@ -141,8 +142,6 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             for cnt in range(board_sidelength + 1):
                 axs[row, col].plot([-0.5, 0.5 + board_sidelength - 1], [cnt - 0.5, cnt - 0.5], '-k')
                 axs[row, col].plot([cnt - 0.5, cnt - 0.5], [-0.5, 0.5 + board_sidelength - 1], '-k')
-
-            
 
             for idx in range(len(curr_path) - 1):
                 start_x, start_y = curr_path[idx]
