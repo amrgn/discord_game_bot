@@ -132,7 +132,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             except IndexError:
                 continue
             curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
-            axs[row, col].set_title(curr_word)
+            axs[row, col].set_title(curr_word.upper())
             axs[row, col].set_xlim(-0.25, 0.25 + board_sidelength - 1)
             axs[row, col].set_ylim(-0.25, 0.25 + board_sidelength - 1)
             axs[row, col].tick_params(left = False, right = False, labelleft = False,
@@ -149,7 +149,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                     if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
                         axs[row, col].plot(x_pos, y_pos, 'om')
             
-            axs[row, col].plot(start_x, start_y, 'og')
+            axs[row, col].plot(start_x, start_y, 'og', markersize=10)
             axs[row, col].plot(end_x, end_y, 'Dr')
 
             curr_pos = start_pos
@@ -157,7 +157,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 end_pos = curr_pos + delta
                 curr_x, curr_y = curr_pos
                 end_x, end_y = end_pos
-                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 10)
+                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 5)
                 axs[row, col].add_patch(arrow)
                 curr_pos = end_pos
         
