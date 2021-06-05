@@ -126,6 +126,11 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
 
     for row in range(nrows):
         for col in range(ncols):
+            axs[row, col].set_xlim(-0.5, 0.5 + board_sidelength - 1)
+            axs[row, col].set_ylim(-0.5, 0.5 + board_sidelength - 1)
+            axs[row, col].tick_params(left = False, right = False, labelleft = False,
+                labelbottom = False, bottom = False)
+
             path_idx = ncols * row + col
             try:
                 curr_path = paths[path_idx]
@@ -133,10 +138,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 continue
             curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
             axs[row, col].set_title(curr_word.upper())
-            axs[row, col].set_xlim(-0.25, 0.25 + board_sidelength - 1)
-            axs[row, col].set_ylim(-0.25, 0.25 + board_sidelength - 1)
-            axs[row, col].tick_params(left = False, right = False, labelleft = False,
-                labelbottom = False, bottom = False)
+
             start_pos = curr_path[0]
             end_pos = curr_path[-1]
             deltas = conv_path_to_deltas(curr_path)
@@ -152,14 +154,20 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             axs[row, col].plot(start_x, start_y, 'og', markersize=15)
             axs[row, col].plot(end_x, end_y, 'Dr', markersize=10)
 
-            curr_pos = start_pos
-            for delta in deltas:
-                end_pos = curr_pos + delta
-                curr_x, curr_y = curr_pos
-                end_x, end_y = end_pos
-                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 5)
+            for idx in range(len(curr_path) - 1):
+                start_x, start_y = curr_path[idx]
+                end_x, end_y = curr_path[idx + 1]
+                arrow = mpatches.FancyArrowPatch((start_x, start_y), (end_x, end_y), mutation_scale = 5)
                 axs[row, col].add_patch(arrow)
-                curr_pos = end_pos
+
+            # curr_pos = start_pos
+            # for delta in deltas:
+            #     end_pos = curr_pos + delta
+            #     curr_x, curr_y = curr_pos
+            #     end_x, end_y = end_pos
+            #     arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 5)
+            #     axs[row, col].add_patch(arrow)
+            #     curr_pos = end_pos
         
     fig.savefig(file)
 
@@ -330,7 +338,7 @@ async def on_message(message):
         list_of_word_paths, board = solve_wordhunt(letters) 
         list_of_word_paths = sorted(list_of_word_paths, key=lambda word: len(word), reverse=True)
 
-        MAX_NUM_RESULTS = 32
+        MAX_NUM_RESULTS = 16
 
         reduced_list_of_word_paths = []
         already_seen_words = set()
