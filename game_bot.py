@@ -129,10 +129,10 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             start_x, start_y = start_pos
             end_x, end_y = end_pos
 
-            # for x_pos in range(board_sidelength):
-            #     for y_pos in range(board_sidelength):
-            #         if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
-            #             axs[row, col].plot(x_pos, y_pos, 'om')
+            for x_pos in range(board_sidelength):
+                for y_pos in range(board_sidelength):
+                    if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
+                        axs[row, col].plot(x_pos, y_pos, 'ok')
             
             axs[row, col].plot(start_x, start_y, 'og', markersize=15)
             axs[row, col].plot(end_x, end_y, 'Dr', markersize=10)
