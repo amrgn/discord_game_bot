@@ -88,24 +88,6 @@ def conv_board_pos_to_cartesian(pos):
     row, col = pos
     return np.array((col, board_sidelength - 1 - row))
 
-# might be buggy, haven't checked...
-def conv_path_to_deltas(path):
-    if len(path) < 2:
-        return np.array([])
-    deltas = []
-    prev_pos = path[0]
-    prev_delta = np.array([0, 0])
-    for pos in path[1:]:
-        delta = pos - prev_pos
-        if tuple(delta) == tuple(prev_delta):
-            deltas[-1] = deltas[-1] + delta
-        else:
-            deltas.append(delta)
-            prev_delta = delta
-        prev_pos = pos
-
-    return deltas
-
 def conv_path_to_word(board, path):
     word = ''
     for pos in path:
@@ -160,15 +142,6 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 end_x, end_y = curr_path[idx + 1]
                 arrow = mpatches.FancyArrowPatch((start_x, start_y), (end_x, end_y), mutation_scale = 5)
                 axs[row, col].add_patch(arrow)
-
-            # curr_pos = start_pos
-            # for delta in deltas:
-            #     end_pos = curr_pos + delta
-            #     curr_x, curr_y = curr_pos
-            #     end_x, end_y = end_pos
-            #     arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 5)
-            #     axs[row, col].add_patch(arrow)
-            #     curr_pos = end_pos
         
     fig.savefig(file)
 
@@ -177,7 +150,8 @@ async def send_results(channel, board, paths):
     for start_idx in range(0, len(paths), 4):
         gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths))], file)
         await channel.send('', file=discord.File(file))
-        await asyncio.sleep(1)
+        if start_idx % 4 == 0 and start_idx != 0:
+            await asyncio.sleep(5)
 
 
 
