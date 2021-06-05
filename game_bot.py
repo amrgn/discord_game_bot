@@ -150,8 +150,7 @@ async def send_results(channel, board, paths):
     for start_idx in range(0, len(paths), 4):
         gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths))], file)
         await channel.send('', file=discord.File(file))
-        if start_idx % 4 == 0 and start_idx != 0:
-            await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
 
 
