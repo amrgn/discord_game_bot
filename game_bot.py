@@ -349,7 +349,7 @@ async def on_message(message):
             results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n')
-        send_results(message.channel, board, reduced_list_of_word_paths)
+        await send_results(message.channel, board, reduced_list_of_word_paths)
         print('Done finding words')
         return
 
