@@ -166,7 +166,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
 async def send_results(channel, board, paths):
     file = 'visual.jpg'
     for start_idx in range(0, len(paths), 4):
-        gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths) - 1)], file)
+        gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths))], file)
         await channel.send('', file=discord.File(file))
         await asyncio.sleep(1)
 
@@ -330,7 +330,7 @@ async def on_message(message):
         list_of_word_paths, board = solve_wordhunt(letters) 
         list_of_word_paths = sorted(list_of_word_paths, key=lambda word: len(word), reverse=True)
 
-        MAX_NUM_RESULTS = 30
+        MAX_NUM_RESULTS = 32
 
         reduced_list_of_word_paths = []
         already_seen_words = set()
