@@ -120,7 +120,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             except IndexError:
                 continue
             curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
-            axs[row, col].set_title(curr_word.upper(), fontweight='bold', fontsize='x-large')
+            axs[row, col].set_title(curr_word.upper(), fontweight='bold', fontsize='xx-large')
 
             start_pos = curr_path[0]
             end_pos = curr_path[-1]
