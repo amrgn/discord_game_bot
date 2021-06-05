@@ -96,7 +96,7 @@ def conv_path_to_deltas(path):
     prev_delta = np.array([0, 0])
     for pos in path[1:]:
         delta = pos - prev_pos
-        if delta == prev_delta:
+        if tuple(delta) == tuple(prev_delta):
             deltas[-1] = deltas[-1] + delta
         else:
             deltas.append(delta)
