@@ -157,7 +157,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 end_pos = curr_pos + delta
                 curr_x, curr_y = curr_pos
                 end_x, end_y = end_pos
-                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 2)
+                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 50)
                 axs[row, col].add_patch(arrow)
                 curr_pos = end_pos
         
