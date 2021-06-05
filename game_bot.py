@@ -88,6 +88,7 @@ def conv_board_pos_to_cartesian(pos):
     row, col = pos
     return np.array((col, board_sidelength - 1 - row))
 
+# might be buggy, haven't checked...
 def conv_path_to_deltas(path):
     if len(path) < 2:
         return np.array([])
@@ -141,7 +142,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
 
             start_pos = curr_path[0]
             end_pos = curr_path[-1]
-            deltas = conv_path_to_deltas(curr_path)
+            # deltas = conv_path_to_deltas(curr_path)
 
             start_x, start_y = start_pos
             end_x, end_y = end_pos
