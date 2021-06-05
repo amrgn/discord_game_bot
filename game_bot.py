@@ -137,6 +137,13 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             axs[row, col].plot(start_x, start_y, 'og', markersize=15)
             axs[row, col].plot(end_x, end_y, 'Dr', markersize=10)
 
+            # add gridlines
+            for cnt in range(board_sidelength - 1):
+                axs[row, col].plot([-0.5, 0.5 + board_sidelength - 1], [cnt + 0.5, cnt + 0.5], '-k')
+                axs[row, col].plot([cnt + 0.5, cnt + 0.5], [-0.5, 0.5 + board_sidelength - 1], '-k')
+
+            
+
             for idx in range(len(curr_path) - 1):
                 start_x, start_y = curr_path[idx]
                 end_x, end_y = curr_path[idx + 1]
