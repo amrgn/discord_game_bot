@@ -145,10 +145,10 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             for x_pos in range(board_sidelength):
                 for y_pos in range(board_sidelength):
                     if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
-                        axs[row, col].plot(x_pos, y_pos, fmt='.m')
+                        axs[row, col].plot(x_pos, y_pos, '.m')
             
-            axs[row, col].plot(start_x, start_y, fmt='og')
-            axs[row, col].plot(end_x, end_y, fmt='Dr')
+            axs[row, col].plot(start_x, start_y, 'og')
+            axs[row, col].plot(end_x, end_y, 'Dr')
 
             curr_pos = start_pos
             for delta in deltas:
