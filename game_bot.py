@@ -5,6 +5,8 @@ import numpy as np
 import asyncio
 import json
 import pexpect
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 # requires a local version of the executable logic.exe
 
@@ -82,10 +84,89 @@ def good_english_word(word):
     return False
 
 def conv_board_pos_to_cartesian(pos):
-    """ Returns tuple """
     global board_sidelength
     row, col = pos
-    return col, board_sidelength - 1 - row
+    return np.array((col, board_sidelength - 1 - row))
+
+def conv_path_to_deltas(path):
+    if len(path) < 2:
+        return np.array([])
+    deltas = []
+    prev_pos = path[0]
+    prev_delta = np.array([0, 0])
+    for pos in path[1:]:
+        delta = pos - prev_pos
+        if delta == prev_delta:
+            deltas[-1] = deltas[-1] + delta
+        else:
+            deltas.append(delta)
+            prev_delta = delta
+        prev_pos = pos
+
+    return deltas
+
+def conv_path_to_word(board, path):
+    word = ''
+    for pos in path:
+        row, col = pos
+        word = word + board[row, col]
+    return word
+
+def gen_path_visual(board, paths, file = 'visual.jpg'):
+    """ requires 4 paths """
+    global board_sidelength
+    nrows = 2
+    ncols = 2
+
+    paths = [[conv_board_pos_to_cartesian(pos) for pos in path] for path in paths]
+
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols)
+
+    for row in range(nrows):
+        for col in range(ncols):
+            path_idx = ncols * row + col
+            try:
+                curr_path = paths[path_idx]
+            except KeyError:
+                continue
+            curr_word = conv_path_to_word(board, curr_path)
+            axs[row, col].set_title(curr_word)
+            axs[row, col].set_xlim(-0.25, 0.25 + board_sidelength)
+            axs[row, col].set_ylim(-0.25, 0.25 + board_sidelength)
+            axs[row, col].tick_params(left = False, right = False, labelleft = False,
+                labelbottom = False, bottom = False)
+            start_pos = curr_path[0]
+            end_pos = curr_path[-1]
+            deltas = conv_path_to_deltas(curr_path)
+
+            start_x, start_y = start_pos
+            end_x, end_y = end_pos
+
+            for x_pos in range(board_sidelength):
+                for y_pos in range(board_sidelength):
+                    if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
+                        axs[row, col].plot(x_pos, y_pos, fmt='.m')
+            
+            axs[row, col].plot(start_x, start_y, fmt='og')
+            axs[row, col].plot(end_x, end_y, fmt='Dr')
+
+            curr_pos = start_pos
+            for delta in deltas:
+                end_pos = curr_pos + delta
+                curr_x, curr_y = curr_pos
+                end_x, end_y = end_pos
+                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 2)
+                axs[row, col].add_patch(arrow)
+                curr_pos = end_pos
+        
+    fig.savefig(file)
+
+async def send_results(channel, board, paths):
+    file = 'visual.jpg'
+    for start_idx in range(0, len(paths), 4):
+        gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths) - 1)], file)
+        await channel.send('', file=discord.File(file))
+        await asyncio.sleep(60)
 
 
 
@@ -138,13 +219,6 @@ def is_valid_pos(pos):
         if pos[1] >= 0 and pos[1] <= 3:
             return True
     return False
-
-def conv_path_to_word(board, path):
-    word = ''
-    for pos in path:
-        row, col = pos
-        word = word + board[row, col]
-    return word
 
 def solve_wordhunt_helper(board, current_pos, prefix_path, currently_unused):
     """ Returns list of all possible words starting from current position with given prefix """
@@ -211,6 +285,7 @@ def format_board(board, bold_path = None):
                     rval += board[row, col] + ' '
         rval += '\n'
     return rval
+
 # *********************************** WORDHUNT CODE END ***********************************************
 
 @client.event
@@ -253,7 +328,7 @@ async def on_message(message):
         list_of_word_paths, board = solve_wordhunt(letters) 
         list_of_word_paths = sorted(list_of_word_paths, key=lambda word: len(word), reverse=True)
 
-        MAX_NUM_RESULTS = 15
+        MAX_NUM_RESULTS = 30
 
         reduced_list_of_word_paths = []
         already_seen_words = set()
@@ -273,7 +348,8 @@ async def on_message(message):
             results += format_board(board, path) + '\n'
             results += "```"
 
-        await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
+        await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n')
+        send_results(message.channel, board, reduced_list_of_word_paths)
         print('Done finding words')
         return
 
