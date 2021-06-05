@@ -81,6 +81,14 @@ def good_english_word(word):
             return True
     return False
 
+def conv_board_pos_to_cartesian(pos):
+    """ Returns tuple """
+    global board_sidelength
+    row, col = pos
+    return col, board_sidelength - 1 - row
+
+
+
 preferred_english_words = []
 
 for word in english_words:
@@ -131,30 +139,30 @@ def is_valid_pos(pos):
             return True
     return False
 
-def conv_pos_to_word(board, positions):
+def conv_path_to_word(board, path):
     word = ''
-    for pos in positions:
+    for pos in path:
         row, col = pos
         word = word + board[row, col]
     return word
 
-def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused):
+def solve_wordhunt_helper(board, current_pos, prefix_path, currently_unused):
     """ Returns list of all possible words starting from current position with given prefix """
     global possible_deltas
     global english_words_trie
     rval = []
 
     # create local copy
-    curr_positions = [np.copy(pos) for pos in prefix_positions]
-    curr_positions.append(np.copy(current_pos))
+    curr_path = [np.copy(pos) for pos in prefix_path]
+    curr_path.append(np.copy(current_pos))
 
-    curr_word = conv_pos_to_word(board, curr_positions)
+    curr_word = conv_path_to_word(board, curr_path)
 
     string_status = english_words_trie.contains_substr(curr_word)
     if string_status == 0: # not a substring of anything
         return rval
     if string_status == 2: # exact match
-        rval.append(curr_positions)
+        rval.append(curr_path)
         print(curr_word)
     
     for delta in possible_deltas:
@@ -162,7 +170,7 @@ def solve_wordhunt_helper(board, current_pos, prefix_positions, currently_unused
         next_row, next_col = next_pos
         if is_valid_pos(next_pos) and currently_unused[next_row, next_col]:
             currently_unused[next_row, next_col] = False
-            rval = rval + solve_wordhunt_helper(board, next_pos, curr_positions, currently_unused)
+            rval = rval + solve_wordhunt_helper(board, next_pos, curr_path, currently_unused)
             currently_unused[next_row, next_col] = True
   
     return rval
@@ -181,18 +189,18 @@ def solve_wordhunt(letters):
             all_words_found = all_words_found + solve_wordhunt_helper(board, np.array([row, col]), [], currently_unused)
     return all_words_found, board
 
-def format_board(board, bold_positions = None):
+def format_board(board, bold_path = None):
     replace_non_bold_with_space = True
-    if bold_positions is None:
+    if bold_path is None:
         replace_non_bold_with_space = False
-        bold_positions = []
+        bold_path = []
     # convert to tuples
-    bold_positions = [(row, col) for row, col in bold_positions]
+    bold_path = [(row, col) for row, col in bold_path]
     rval = ''
     for row in range(board_sidelength):
         for col in range(board_sidelength):
-            if (row, col) in bold_positions:
-                if (row, col) == bold_positions[0]:
+            if (row, col) in bold_path:
+                if (row, col) == bold_path[0]:
                     rval += board[row, col].upper() + ' '
                 else:
                     rval += board[row, col] + ' '
@@ -242,27 +250,27 @@ async def on_message(message):
             await message.channel.send(f'Invalid wordhunt configuration, needs exactly {board_sidelength * board_sidelength} letters with no spaces between the letters, ex: wordhunt abcdefghijklmnop')
             return
         print(f'User requested wordhunt search for {letters}')
-        list_of_word_positions, board = solve_wordhunt(letters) 
-        list_of_word_positions = sorted(list_of_word_positions, key=lambda word: len(word), reverse=True)
+        list_of_word_paths, board = solve_wordhunt(letters) 
+        list_of_word_paths = sorted(list_of_word_paths, key=lambda word: len(word), reverse=True)
 
         MAX_NUM_RESULTS = 15
 
-        reduced_list_of_word_positions = []
+        reduced_list_of_word_paths = []
         already_seen_words = set()
-        for positions in list_of_word_positions:
-            curr_word = conv_pos_to_word(board, positions)
+        for path in list_of_word_paths:
+            curr_word = conv_path_to_word(board, path)
             if curr_word not in already_seen_words:
                 already_seen_words.add(curr_word)
-                reduced_list_of_word_positions.append(positions)
-            if len(reduced_list_of_word_positions) >= MAX_NUM_RESULTS:
+                reduced_list_of_word_paths.append(path)
+            if len(reduced_list_of_word_paths) >= MAX_NUM_RESULTS:
                 break
 
         results = ''
-        for positions in reduced_list_of_word_positions:
-            curr_word = conv_pos_to_word(board, positions)
+        for path in reduced_list_of_word_paths:
+            curr_word = conv_path_to_word(board, path)
             results += '**' + curr_word.capitalize() + '**' + '\n'
             results += "```"
-            results += format_board(board, positions) + '\n'
+            results += format_board(board, path) + '\n'
             results += "```"
 
         await message.channel.send('**Board:**\n' + "```" + format_board(board) + "```" + '\n' + 'Results:\n\n' + results)
