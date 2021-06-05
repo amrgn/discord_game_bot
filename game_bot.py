@@ -147,7 +147,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             for x_pos in range(board_sidelength):
                 for y_pos in range(board_sidelength):
                     if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
-                        axs[row, col].plot(x_pos, y_pos, '.m')
+                        axs[row, col].plot(x_pos, y_pos, 'om')
             
             axs[row, col].plot(start_x, start_y, 'og')
             axs[row, col].plot(end_x, end_y, 'Dr')
@@ -157,7 +157,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 end_pos = curr_pos + delta
                 curr_x, curr_y = curr_pos
                 end_x, end_y = end_pos
-                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 50)
+                arrow = mpatches.FancyArrowPatch((curr_x, curr_y), (end_x, end_y), mutation_scale = 10)
                 axs[row, col].add_patch(arrow)
                 curr_pos = end_pos
         
