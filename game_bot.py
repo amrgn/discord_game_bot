@@ -150,7 +150,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                         axs[row, col].plot(x_pos, y_pos, 'om')
             
             axs[row, col].plot(start_x, start_y, 'og', markersize=15)
-            axs[row, col].plot(end_x, end_y, 'Dr')
+            axs[row, col].plot(end_x, end_y, 'Dr', markersize=10)
 
             curr_pos = start_pos
             for delta in deltas:
