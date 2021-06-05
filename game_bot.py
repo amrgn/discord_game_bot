@@ -315,7 +315,7 @@ async def on_message(message):
         list_of_word_paths, board = solve_wordhunt(letters) 
         list_of_word_paths = sorted(list_of_word_paths, key=lambda word: len(word), reverse=True)
 
-        MAX_NUM_RESULTS = 16
+        MAX_NUM_RESULTS = 32
 
         reduced_list_of_word_paths = []
         already_seen_words = set()
