@@ -118,6 +118,8 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
     nrows = 2
     ncols = 2
 
+    old_fmt_paths = paths
+
     paths = [[conv_board_pos_to_cartesian(pos) for pos in path] for path in paths]
 
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols)
@@ -129,10 +131,10 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
                 curr_path = paths[path_idx]
             except KeyError:
                 continue
-            curr_word = conv_path_to_word(board, curr_path)
+            curr_word = conv_path_to_word(board, old_fmt_paths[path_idx])
             axs[row, col].set_title(curr_word)
-            axs[row, col].set_xlim(-0.25, 0.25 + board_sidelength)
-            axs[row, col].set_ylim(-0.25, 0.25 + board_sidelength)
+            axs[row, col].set_xlim(-0.25, 0.25 + board_sidelength - 1)
+            axs[row, col].set_ylim(-0.25, 0.25 + board_sidelength - 1)
             axs[row, col].tick_params(left = False, right = False, labelleft = False,
                 labelbottom = False, bottom = False)
             start_pos = curr_path[0]
