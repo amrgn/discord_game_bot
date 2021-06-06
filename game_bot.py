@@ -146,8 +146,8 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             for idx in range(len(curr_path) - 1):
                 start_x, start_y = curr_path[idx]
                 end_x, end_y = curr_path[idx + 1]
-                arrow = mpatches.FancyArrowPatch((start_x, start_y), (end_x, end_y), mutation_scale = 5)
-                axs[row, col].add_patch(arrow)
+                # arrow = mpatches.FancyArrowPatch((start_x, start_y), (end_x, end_y), mutation_scale = 5)
+                axs[row, col].plot((start_x, start_y), (end_x, end_y), '-k')
         
     fig.savefig(file)
 
