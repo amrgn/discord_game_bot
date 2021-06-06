@@ -133,21 +133,20 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
             for x_pos in range(board_sidelength):
                 for y_pos in range(board_sidelength):
                     if (x_pos, y_pos) != (start_x, start_y) and (x_pos, y_pos) != (end_x, end_y):
-                        axs[row, col].plot(x_pos, y_pos, 'om')
+                        axs[row, col].plot(x_pos, y_pos, 'om', zorder=2)
             
-            axs[row, col].plot(start_x, start_y, 'og', markersize=15)
-            axs[row, col].plot(end_x, end_y, 'Dr', markersize=10)
+            axs[row, col].plot(start_x, start_y, 'og', markersize=15, zorder=2)
+            axs[row, col].plot(end_x, end_y, 'Dr', markersize=10, zorder=2)
 
             # add gridlines
             for cnt in range(board_sidelength + 1):
-                axs[row, col].plot([-0.5, 0.5 + board_sidelength - 1], [cnt - 0.5, cnt - 0.5], '-k')
-                axs[row, col].plot([cnt - 0.5, cnt - 0.5], [-0.5, 0.5 + board_sidelength - 1], '-k')
+                axs[row, col].plot([-0.5, 0.5 + board_sidelength - 1], [cnt - 0.5, cnt - 0.5], '-k', zorder=1)
+                axs[row, col].plot([cnt - 0.5, cnt - 0.5], [-0.5, 0.5 + board_sidelength - 1], '-k', zorder=1)
 
             for idx in range(len(curr_path) - 1):
                 start_x, start_y = curr_path[idx]
                 end_x, end_y = curr_path[idx + 1]
-                # arrow = mpatches.FancyArrowPatch((start_x, start_y), (end_x, end_y), mutation_scale = 5)
-                axs[row, col].plot((start_x, end_x), (start_y, end_y), '-k')
+                axs[row, col].plot((start_x, end_x), (start_y, end_y), '-k', zorder=1)
         
     fig.savefig(file)
 
