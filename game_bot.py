@@ -95,7 +95,7 @@ def conv_path_to_word(board, path):
         word = word + board[row, col]
     return word
 
-def gen_path_visual(board, paths, file = 'visual.jpg'):
+def gen_path_visual(board, paths, file = 'visual.png'):
     """ requires 4 paths """
     global board_sidelength
     nrows = 2
@@ -152,7 +152,7 @@ def gen_path_visual(board, paths, file = 'visual.jpg'):
     fig.savefig(file)
 
 async def send_results(channel, board, paths):
-    file = 'visual.jpg'
+    file = 'visual.png'
     cnt = 0
     for start_idx in range(0, len(paths), 4):
         gen_path_visual(board, paths[start_idx: min(start_idx + 4, len(paths))], file)
